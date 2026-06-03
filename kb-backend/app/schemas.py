@@ -201,3 +201,120 @@ class ExportOut(BaseModel):
     exported_at: str
     total_files: int
     files: list[KBFileDetailOut]
+
+
+# --- Gap Check schemas ---
+
+
+class StandardOut(BaseModel):
+    id: int
+    name: str
+    code: Optional[str] = None
+    version: Optional[str] = None
+    description: Optional[str] = None
+    clause_count: int = 0
+    loaded_at: Optional[datetime] = None
+
+    model_config = {"from_attributes": True}
+
+
+class ClauseOut(BaseModel):
+    clause_id: str
+    section: str
+    clause_text: str
+    keywords: list[str]
+
+
+class StandardClausesOut(BaseModel):
+    standard: StandardOut
+    clauses: list[ClauseOut]
+
+
+class GapCheckRequest(BaseModel):
+    standardName: str
+    workContent: Optional[str] = None
+    workFile: Optional[str] = None
+    summaryCenterUrl: Optional[str] = None
+    useAI: bool = True
+    useKB: bool = True
+
+
+class ClauseResult(BaseModel):
+    clause_id: str
+    section: str
+    clause_text: str
+    keywords: list[str]
+    confidence: float
+    covered: bool
+    reason: str = ""
+
+
+class Suggestion(BaseModel):
+    clause_id: str
+    suggestion: str
+    priority: str = "中"
+    section: Optional[str] = None
+    clause: Optional[str] = None
+
+
+class KBFileUsed(BaseModel):
+    relative_path: str
+    title: str
+    fill_status: str
+    source: str = ""
+
+
+class GapCheckResult(BaseModel):
+    id: int
+    standard: str
+    standardCode: Optional[str] = None
+    workSource: str
+    kbEnhanced: bool
+    kbFilesUsed: list[KBFileUsed]
+    totalClauses: int
+    coveredCount: int
+    gapCount: int
+    coverageRate: float
+    aiEnhanced: bool
+    summary: str
+    results: list[ClauseResult]
+    gapClauses: list[ClauseResult]
+    coveredClauses: list[ClauseResult]
+    suggestions: list[Suggestion]
+
+
+class GapCheckHistoryItem(BaseModel):
+    id: int
+    standard_name: str
+    work_source: str
+    total_clauses: int
+    covered_count: int
+    gap_count: int
+    coverage_rate: float
+    ai_enhanced: int
+    created_at: Optional[datetime] = None
+
+    model_config = {"from_attributes": True}
+
+
+class GapCheckHistoryDetail(BaseModel):
+    id: int
+    standard_name: str
+    work_content: str
+    work_source: str
+    total_clauses: int
+    covered_count: int
+    gap_count: int
+    coverage_rate: float
+    ai_enhanced: int
+    kb_enhanced: int
+    kb_files_used: list[dict]
+    result_json: list[dict]
+    created_at: Optional[datetime] = None
+
+
+class GapCheckExportRequest(BaseModel):
+    standardName: str
+    workContent: Optional[str] = None
+    workFile: Optional[str] = None
+    format: str = "json"

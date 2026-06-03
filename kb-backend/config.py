@@ -36,3 +36,49 @@ PRIORITY_MAPPING = {
     "P2": ["04-审计与整改", "05-风险案例"],
     "P3": ["08-模板中心"],
 }
+
+# --- 合规差距排查 (gap-check) 配置 ---
+CLAUSES_DIR = KB_BACKEND_ROOT / "data" / "clauses"
+
+GAP_CHECK = {
+    "keyword_min_confidence": float(os.environ.get("GC_KEYWORD_MIN_CONFIDENCE", "0.15")),
+    "ai_min_confidence": float(os.environ.get("GC_AI_MIN_CONFIDENCE", "0.5")),
+}
+
+# AI 配置 (可选，不配置则仅使用关键词匹配)
+AI_CONFIG = {
+    "provider": os.environ.get("GC_AI_PROVIDER", ""),   # claude | glm | minimax | '' (空=不启用)
+    "api_key": os.environ.get("GC_AI_API_KEY", ""),
+    "model": os.environ.get("GC_AI_MODEL", ""),
+    "base_url": os.environ.get("GC_AI_BASE_URL", ""),
+}
+
+# gap-check 标准名 → 知识库合规框架子目录映射
+GAP_CHECK_STANDARD_MAP = {
+    "等保2.0": "等保2.0",
+    "ISO27001": "ISO27001",
+    "SOC2": "SOC2",
+    "GDPR": "GDPR",
+}
+
+# 无直接映射的标准 → 关键词搜索兜底
+GAP_CHECK_STANDARD_KEYWORDS = {
+    "网络安全法": ["网络安全", "安全管理制度", "网络防护", "安全监测"],
+    "数据安全法": ["数据安全", "数据管理", "数据分级", "数据保护", "数据分类"],
+    "个人信息保护法": ["个人信息", "隐私保护", "数据脱敏", "用户数据", "知情同意"],
+}
+
+# 知识库证据通道类目 (合并到工作内容，参与关键词匹配)
+EVIDENCE_CATEGORIES = ["01-制度体系", "02-技术基线", "06-应急响应"]
+
+# 知识库上下文通道类目 (仅注入AI Prompt)
+CONTEXT_CATEGORIES = ["03-合规框架", "04-审计与整改"]
+
+# KB 内容最大字符数 (防 prompt 溢出)
+KB_MAX_CONTENT_LENGTH = int(os.environ.get("GC_KB_MAX_CONTENT", "50000"))
+
+# Summary Center API (工作内容来源之一)
+SUMMARY_CENTER_URL = os.environ.get("GC_SUMMARY_CENTER_URL", "")
+
+# KB 搜索每次最大返回数
+KB_MAX_SEARCH_RESULTS = int(os.environ.get("GC_KB_MAX_SEARCH_RESULTS", "10"))
